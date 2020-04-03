@@ -1,0 +1,66 @@
+{
+  "name": "AB",
+  "timezoneOffset": "+0000",
+  "description": "Definitive Source For Anime And Manga",
+  "url": "https://animebytes.tv/",
+  "icon": "https://animebytes.tv/favicon.ico",
+  "tags": ["动漫"],
+  "schema": "",
+  "host": "animebytes.tv",
+  "selectors": {
+    "userBaseInfo": {
+      "page": "/",
+      "fields": {
+        "id": {
+          "selector": ["a[href*='userid=']:first"],
+          "attribute": "href",
+          "filters": ["query ? query.getQueryString('userid'):''"]
+        },
+        "name": {
+          "selector": ["a.username[href*='/user/profile/']:first"]
+        },
+        "messageCount": {
+          "selector": ["div#userinfo a[href*='inbox.php']"],
+          "filters": ["query.text().replace(/\\s+/g,'').match(/(\\d+)/)", "(query && query.length>=2)?parseInt(query[1]):0"]
+        }
+      }
+    },
+    "userExtendInfo": {
+      "page": "/user.php?id=$user.id$",
+      "fields": {
+        "uploaded": {
+          "selector": ["dl.userprofile_list.clearcont > dt:contains('Uploaded:') + dd:first"],
+          "filters": ["query.text().trim().replace(/,/g,'').match(/([\\d\\.]+ ?[ZEPTGMK]?i?B)/)", "(query && query.length>=2)?(query[1]).sizeToNumber():0"]
+        },
+        "downloaded": {
+          "selector": ["dl.userprofile_list.clearcont > dt:contains('Downloaded:') + dd:first"],
+          "filters": ["query.text().trim().replace(/,/g,'').match(/([\\d\\.]+ ?[ZEPTGMK]?i?B)/)", "(query && query.length>=2)?(query[1]).sizeToNumber():0"]
+        },
+        "ratio": {
+          "selector": ["dl.userprofile_list.clearcont > dt:contains('Ratio:') + dd:first"],
+          "filters": ["query.text().replace(/,|\\n|\\s+/g,'').match(/([\\d\\.]+)/)", "(query && query.length>=2)?(query[1]).sizeToNumber():0"]
+        },
+        "seeding": {
+          "selector": "dl.userprofile_list.clearcont > dt:contains('Seeding:') + dd:first",
+          "filters": ["query.text().trim().replace(/,|\\n/g,'').match(/([\\d\\.]+)/)", "(query && query.length>=2)?parseFloat(query[1]):0"]
+        },
+        "seedingSize": {
+          "selector": "dl.userprofile_list.clearcont > dt:contains('Total seed size:') + dd:first",
+          "filters": ["query.text().trim().replace(/,/g,'').match(/([\\d\\.]+ ?[ZEPTGMK]?i?B)/)", "(query && query.length>=2)?(query[1]).sizeToNumber():0"]
+        },
+        "levelName": {
+          "selector": "dl.userprofile_list.clearcont > dt:contains('Class:') + dd:first",
+          "filters": ["query.text().replace(/,|\\n|\\s+/g,'').match(/^\\s*(.+)\\s*$/)", "(query && query.length>=2)?query[1]:''"]
+        },
+        "bonus": {
+          "selector": "ul#userinfo_minor > li#yen_count",
+          "filters": ["query.text().replace(/,|¥/g,'')", "parseFloat(query)"]
+        },
+        "joinTime": {
+          "selector": "dl.userprofile_list.clearcont > dt:contains('Joined:') + dd:first",
+          "filters": ["query.attr('title')", "dateTime(query).isValid()?dateTime(query).valueOf():query"]
+        }
+      }
+    }
+  }
+}
